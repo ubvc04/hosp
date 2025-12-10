@@ -1,0 +1,310 @@
+{% extends "base.html" %}
+
+{% block title %}Blockchain Dashboard - Hospital Portal{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="mb-0">
+                <i class="fas fa-cubes me-2"></i>Blockchain Dashboard
+            </h2>
+            <p class="text-muted">Manage blockchain-secured medical records</p>
+        </div>
+    </div>
+
+    <!-- Connection Status -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card {% if connected %}border-success{% else %}border-danger{% endif %}">
+                <div class="card-header {% if connected %}bg-success text-white{% else %}bg-danger text-white{% endif %}">
+                    <h5 class="mb-0">
+                        <i class="fas {% if connected %}fa-check-circle{% else %}fa-exclamation-triangle{% endif %} me-2"></i>
+                        Blockchain Status
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Connection:</strong> 
+                                <span class="badge {% if connected %}bg-success{% else %}bg-danger{% endif %}">
+                                    {% if connected %}Connected{% else %}Disconnected{% endif %}
+                                </span>
+                            </p>
+                            <p><strong>Ganache URL:</strong> <code>{{ ganache_url }}</code></p>
+                            <p><strong>Smart Contract:</strong> 
+                                {% if contract_deployed %}
+                                    <span class="badge bg-success">Deployed</span>
+                                {% else %}
+                                    <span class="badge bg-warning">Not Deployed</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            {% if contract_address %}
+                            <p><strong>Contract Address:</strong></p>
+                            <code class="d-block text-break">{{ contract_address }}</code>
+                            {% endif %}
+                            {% if contract_owner %}
+                            <p class="mt-2"><strong>Contract Owner:</strong></p>
+                            <code class="d-block text-break">{{ contract_owner }}</code>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if not connected %}
+                    <div class="alert alert-warning mt-3">
+                        <h6><i class="fas fa-info-circle me-2"></i>Ganache Not Running</h6>
+                        <p class="mb-2">To enable blockchain features:</p>
+                        <ol class="mb-0">
+                            <li>Download and install <a href="https://trufflesuite.com/ganache/" target="_blank">Ganache</a></li>
+                            <li>Start Ganache and create a workspace</li>
+                            <li>Run <code>python deploy_contract.py</code> to deploy the smart contract</li>
+                            <li>Restart the Flask application</li>
+                        </ol>
+                    </div>
+                    {% endif %}
+
+                    {% if not contract_deployed and connected %}
+                    <div class="alert alert-info mt-3">
+                        <h6><i class="fas fa-info-circle me-2"></i>Contract Not Deployed</h6>
+                        <p class="mb-0">Run <code>python deploy_contract.py</code> to deploy the PatientRecords smart contract.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if connected and contract_deployed %}
+    <!-- Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h1 class="display-4">{{ stats.total_records }}</h1>
+                    <p class="mb-0">Records on Blockchain</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h1 class="display-4">{{ stats.total_patients }}</h1>
+                    <p class="mb-0">Patients Synced</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <h1 class="display-4">{{ stats.total_audits }}</h1>
+                    <p class="mb-0">Audit Log Entries</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-cogs me-2"></i>Actions</h5>
+                </div>
+                <div class="card-body">
+                    <button id="syncAllBtn" class="btn btn-primary me-2">
+                        <i class="fas fa-sync me-2"></i>Sync All Patients
+                    </button>
+                    <button id="refreshStatusBtn" class="btn btn-secondary">
+                        <i class="fas fa-refresh me-2"></i>Refresh Status
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ganache Accounts -->
+    {% if accounts %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-wallet me-2"></i>Ganache Accounts</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Address</th>
+                                    <th>Balance (ETH)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for account in accounts %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td><code>{{ account.address }}</code></td>
+                                    <td>{{ account.balance }} ETH</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Audit Logs -->
+    {% if audit_logs %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-history me-2"></i>Recent Audit Logs</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Patient ID</th>
+                                    <th>Action</th>
+                                    <th>Accessor</th>
+                                    <th>Timestamp</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for log in audit_logs %}
+                                <tr>
+                                    <td>{{ log.patient_id }}</td>
+                                    <td>
+                                        <span class="badge 
+                                            {% if log.action == 'CREATE' %}bg-success
+                                            {% elif log.action == 'UPDATE' %}bg-warning
+                                            {% elif log.action == 'READ' %}bg-info
+                                            {% else %}bg-secondary{% endif %}">
+                                            {{ log.action }}
+                                        </span>
+                                    </td>
+                                    <td><code class="small">{{ log.accessor[:16] }}...</code></td>
+                                    <td>{{ log.timestamp }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% endif %}
+
+    <!-- How It Works -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>How Blockchain Security Works</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 text-center mb-3">
+                            <div class="p-3">
+                                <i class="fas fa-database fa-3x text-primary mb-3"></i>
+                                <h6>1. Data Storage</h6>
+                                <p class="text-muted small">Medical records are encrypted and stored in the database</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center mb-3">
+                            <div class="p-3">
+                                <i class="fas fa-fingerprint fa-3x text-success mb-3"></i>
+                                <h6>2. Hash Generation</h6>
+                                <p class="text-muted small">SHA-256 hash of each record is generated</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center mb-3">
+                            <div class="p-3">
+                                <i class="fas fa-cubes fa-3x text-info mb-3"></i>
+                                <h6>3. Blockchain Storage</h6>
+                                <p class="text-muted small">Hash is stored on blockchain for tamper-proof verification</p>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-shield-alt me-2 text-success"></i>Benefits</h6>
+                            <ul class="small">
+                                <li><strong>Immutability:</strong> Records cannot be altered without detection</li>
+                                <li><strong>Audit Trail:</strong> Every access is logged permanently</li>
+                                <li><strong>Data Integrity:</strong> Verify records haven't been tampered with</li>
+                                <li><strong>Decentralization:</strong> No single point of failure</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-cog me-2 text-primary"></i>Technology Stack</h6>
+                            <ul class="small">
+                                <li><strong>Ganache:</strong> Local Ethereum blockchain</li>
+                                <li><strong>Solidity:</strong> Smart contract language</li>
+                                <li><strong>Web3.py:</strong> Python blockchain library</li>
+                                <li><strong>RSA-4096:</strong> Data encryption</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Sync All button
+    const syncAllBtn = document.getElementById('syncAllBtn');
+    if (syncAllBtn) {
+        syncAllBtn.addEventListener('click', function() {
+            syncAllBtn.disabled = true;
+            syncAllBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Syncing...';
+            
+            fetch('/blockchain/sync-all', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token() }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                } else {
+                    alert(`Synced ${data.synced} of ${data.total_patients} patients to blockchain!`);
+                    location.reload();
+                }
+            })
+            .catch(error => {
+                alert('Error: ' + error);
+            })
+            .finally(() => {
+                syncAllBtn.disabled = false;
+                syncAllBtn.innerHTML = '<i class="fas fa-sync me-2"></i>Sync All Patients';
+            });
+        });
+    }
+    
+    // Refresh Status button
+    const refreshBtn = document.getElementById('refreshStatusBtn');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', function() {
+            location.reload();
+        });
+    }
+});
+</script>
+{% endblock %}

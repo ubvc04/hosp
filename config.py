@@ -63,6 +63,12 @@ class Config:
     # OTP Settings
     OTP_EXPIRY_MINUTES = 10
     OTP_LENGTH = 6
+    
+    # Blockchain Configuration (Ganache)
+    GANACHE_URL = os.environ.get('GANACHE_URL') or 'http://127.0.0.1:7545'
+    CONTRACT_ADDRESS = os.environ.get('CONTRACT_ADDRESS')
+    BLOCKCHAIN_PRIVATE_KEY = os.environ.get('BLOCKCHAIN_PRIVATE_KEY')
+    BLOCKCHAIN_ENABLED = os.environ.get('BLOCKCHAIN_ENABLED', 'true').lower() == 'true'
 
 
 class DevelopmentConfig(Config):

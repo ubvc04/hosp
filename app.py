@@ -82,6 +82,10 @@ def create_app(config_name=None):
     from ai_suggestions import init_suggestion_engine
     init_suggestion_engine(app.config.get('GEMINI_API_KEY'))
     
+    # Initialize blockchain connection
+    from blockchain import init_blockchain
+    init_blockchain(app)
+    
     # Register blueprints
     app.register_blueprint(auth_bp)
     
@@ -90,6 +94,9 @@ def create_app(config_name=None):
     
     from patient_routes import patient_bp
     app.register_blueprint(patient_bp)
+    
+    from blockchain_routes import blockchain_bp
+    app.register_blueprint(blockchain_bp)
     
     # Add security headers
     @app.after_request

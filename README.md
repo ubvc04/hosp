@@ -1,403 +1,302 @@
-# 🏥 Hospital Patient Portal
+# 🏥 Hospital Patient Portal - Blockchain Edition
 
-A complete, advanced Hospital Patient Portal web application with a strong focus on **security**, **asymmetric encryption (RSA-4096)**, and a **polished healthcare UI**.
+A secure hospital patient management system with **RSA-4096 encryption** and **Blockchain integration** using Ganache.
 
 ![Flask](https://img.shields.io/badge/Flask-3.0.0-green)
-![Python](https://img.shields.io/badge/Python-3.8+-blue)
-![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-purple)
+![Python](https://img.shields.io/badge/Python-3.10+-blue)
+![Blockchain](https://img.shields.io/badge/Blockchain-Ganache-orange)
 ![Security](https://img.shields.io/badge/Encryption-RSA--4096-red)
 
-## ✨ Features
+## 🔐 Security Features
 
-### 🔐 Security
-- **RSA-4096 Asymmetric Encryption** for all sensitive patient data
-- **Hybrid Encryption** (AES + RSA) for large data fields
-- **bcrypt Password Hashing** with secure salt rounds
-- **CSRF Protection** on all forms
-- **Role-Based Access Control** (Admin/Patient)
-- **Secure Session Management** with Flask-Login
+### Encryption Layer
+- **RSA-4096** encryption for sensitive medical data
+- Encrypted fields: medical history, diagnosis, prescriptions, billing details
+- Hybrid encryption (AES + RSA) for large data
+
+### Blockchain Layer
+- **Ganache** local Ethereum blockchain
+- **Smart Contract** for immutable record storage
+- **Tamper-proof** audit trail
+- **Data integrity verification**
+
+## 🏗️ Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Frontend (Flask Templates)                │
+├─────────────────────────────────────────────────────────────┤
+│                    Flask Application                         │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐ │
+│  │ Auth Routes │  │Admin Routes │  │ Blockchain Routes   │ │
+│  └─────────────┘  └─────────────┘  └─────────────────────┘ │
+├─────────────────────────────────────────────────────────────┤
+│  ┌─────────────────────┐  ┌─────────────────────────────┐  │
+│  │    SQLite + RSA     │  │   Ganache Blockchain        │  │
+│  │  (Encrypted Data)   │  │   (Hash Verification)       │  │
+│  └─────────────────────┘  └─────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## ✨ Features
 
 ### 👨‍💼 Admin Features
 - Complete **CRUD operations** for patient management
 - Manage patient **visits**, **bills**, and **medical reports**
-- View all encrypted data with automatic decryption
-- Dashboard with statistics and recent activity
+- **Blockchain Dashboard** for monitoring
+- View audit logs and data integrity
 - Search and filter patients
 
 ### 👤 Patient Features
 - **Read-only access** to personal medical records
 - View visit history, bills, and reports
-- **AI-powered health suggestions** based on medical history
+- **AI-powered health suggestions**
 - Secure profile management
-- Password change functionality
 
-### 🤖 AI Health Suggestions
-- Integration with **Google Gemini API** for intelligent health recommendations
-- **Rule-based fallback system** for reliable suggestions
-- Personalized advice based on:
-  - Medical history
-  - Recent diagnoses
-  - Current prescriptions
-  - Age-appropriate recommendations
+### ⛓️ Blockchain Features
+- Automatic syncing of records to blockchain
+- Verify data integrity at any time
+- Immutable audit trail
+- Tamper detection
 
-### 🎨 Modern UI
-- **Bootstrap 5** responsive design
-- Healthcare-themed color scheme
-- Clean, intuitive navigation
-- Mobile-friendly interface
-- Professional data tables and cards
+## 📋 Prerequisites
+
+1. **Python 3.10+**
+2. **Node.js** (optional, for Ganache GUI)
+3. **Ganache** - Download from https://trufflesuite.com/ganache/
+
+## 🚀 Quick Start
+
+### 1. Clone Repository
+```bash
+git clone https://github.com/ubvc04/hosp.git
+cd hosp
+```
+
+### 2. Create Virtual Environment
+```bash
+python -m venv venv
+# Windows
+.\venv\Scripts\activate
+# Linux/Mac
+source venv/bin/activate
+```
+
+### 3. Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Setup Environment Variables
+Create `.env` file:
+```env
+SECRET_KEY=your-super-secret-key-here
+FLASK_ENV=development
+
+# Email Configuration (Gmail)
+MAIL_USERNAME=your-email@gmail.com
+MAIL_PASSWORD=your-app-password
+
+# Blockchain (added after deployment)
+GANACHE_URL=http://127.0.0.1:7545
+```
+
+### 5. Initialize Database
+```bash
+python init_db.py
+```
+
+### 6. Run Application
+```bash
+python app.py
+```
+
+Access at: http://localhost:5000
+
+---
+
+## ⛓️ Blockchain Setup
+
+### Step 1: Start Ganache
+
+1. Open **Ganache** application
+2. Click **"QUICKSTART ETHEREUM"** or create workspace
+3. Note the RPC Server URL (default: `http://127.0.0.1:7545`)
+
+### Step 2: Deploy Smart Contract
+
+```bash
+python deploy_contract.py
+```
+
+This will:
+- Install Solidity compiler
+- Compile `contracts/PatientRecords.sol`
+- Deploy to Ganache
+- Save contract address to `.env`
+
+### Step 3: Configure Private Key
+
+1. In Ganache, click the **key icon** 🔑 next to first account
+2. Copy the private key
+3. Add to `.env`:
+```env
+BLOCKCHAIN_PRIVATE_KEY=0x...your-private-key...
+CONTRACT_ADDRESS=0x...deployed-address...
+```
+
+### Step 4: Access Blockchain Dashboard
+
+1. Login as admin
+2. Navigate to **Blockchain** in navbar
+3. View status, sync patients, check audit logs
+
+---
 
 ## 📁 Project Structure
 
 ```
-Hosp/
-├── app.py                    # Main Flask application
-├── models.py                 # SQLAlchemy database models
-├── auth.py                   # Authentication routes & decorators
-├── admin_routes.py           # Admin CRUD routes
-├── patient_routes.py         # Patient view routes
-├── crypto_utils.py           # RSA-4096 encryption utilities
-├── ai_suggestions.py         # AI health suggestion engine
-├── forms.py                  # WTForms form definitions
-├── config.py                 # Application configuration
-├── init_db.py                # Database initialization script
-├── requirements.txt          # Python dependencies
-├── .env                      # Environment variables
-├── .gitignore                # Git ignore rules
-├── keys/                     # RSA key storage (auto-generated)
-│   ├── private_key.pem
-│   └── public_key.pem
-├── static/
-│   ├── css/
-│   │   └── style.css         # Custom styles
-│   └── js/
-│       └── main.js           # Frontend JavaScript
-└── templates/
-    ├── base.html             # Base template
-    ├── auth/
-    │   ├── login.html
-    │   ├── profile.html
-    │   └── change_password.html
-    ├── admin/
-    │   ├── admin_navbar.html
-    │   ├── dashboard.html
-    │   ├── patients.html
-    │   ├── add_patient.html
-    │   ├── edit_patient.html
-    │   ├── view_patient.html
-    │   ├── visits.html
-    │   ├── add_visit.html
-    │   ├── edit_visit.html
-    │   ├── bills.html
-    │   ├── add_bill.html
-    │   ├── edit_bill.html
-    │   ├── reports.html
-    │   ├── add_report.html
-    │   └── edit_report.html
-    ├── patient/
-    │   ├── patient_navbar.html
-    │   ├── dashboard.html
-    │   ├── records.html
-    │   ├── bills.html
-    │   └── reports.html
-    └── errors/
-        ├── 403.html
-        ├── 404.html
-        └── 500.html
+hosp/
+├── contracts/
+│   └── PatientRecords.sol      # Solidity smart contract
+├── templates/
+│   ├── admin/
+│   │   ├── blockchain_dashboard.html
+│   │   └── ...
+│   ├── auth/
+│   └── patient/
+├── app.py                      # Flask application factory
+├── blockchain.py               # Blockchain manager class
+├── blockchain_routes.py        # Blockchain API endpoints
+├── deploy_contract.py          # Contract deployment script
+├── models.py                   # SQLAlchemy models
+├── crypto_utils.py             # RSA encryption utilities
+├── admin_routes.py             # Admin functionality
+├── patient_routes.py           # Patient functionality
+├── auth.py                     # Authentication
+├── config.py                   # Configuration
+└── requirements.txt
 ```
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Python 3.8 or higher
-- pip package manager
-
-### Installation
-
-1. **Clone or download** the project to your local machine
-
-2. **Navigate to the project directory**:
-   ```bash
-   cd Hosp
-   ```
-
-3. **Create a virtual environment** (recommended):
-   ```bash
-   python -m venv venv
-   
-   # Windows
-   venv\Scripts\activate
-   
-   # macOS/Linux
-   source venv/bin/activate
-   ```
-
-4. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-5. **Initialize the database**:
-   ```bash
-   python init_db.py
-   ```
-
-6. **Run the application**:
-   ```bash
-   python app.py
-   ```
-
-7. **Open your browser** and navigate to:
-   ```
-   http://localhost:5000
-   ```
-
-## 🔑 Default Login Credentials
-
-### Administrator Account
-- **Email**: `baveshchowdary1@gmail.com`
-- **Password**: `bavesh1234`
-
-### Sample Patient Accounts
-- **Email**: `john.doe@email.com` / **Password**: `Patient@123`
-- **Email**: `sarah.smith@email.com` / **Password**: `Patient@123`
-- **Email**: `robert.johnson@email.com` / **Password**: `Patient@123`
-
-> ⚠️ **Important**: Change these default credentials in a production environment!
-
-## 🔒 Security Architecture
-
-### Encryption Flow
-```
-┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│   Plain Text    │────▶│  RSA-4096 Public │────▶│  Encrypted Data │
-│   (Patient Data)│     │    Key Encrypt   │     │   (Stored in DB)│
-└─────────────────┘     └──────────────────┘     └─────────────────┘
-                                                          │
-                                                          ▼
-┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│   Plain Text    │◀────│  RSA-4096 Private│◀────│  Encrypted Data │
-│   (Displayed)   │     │    Key Decrypt   │     │   (From DB)     │
-└─────────────────┘     └──────────────────┘     └─────────────────┘
-```
-
-### Encrypted Fields
-The following sensitive data fields are encrypted at rest:
-- `encrypted_address` - Patient home address
-- `encrypted_medical_history` - Complete medical history
-- `encrypted_diagnosis` - Visit diagnoses
-- `encrypted_prescriptions` - Medication prescriptions
-- `encrypted_bill_details` - Billing itemization
-- `encrypted_report_summary` - Medical report summaries
-
-### Password Security
-- Passwords are hashed using **bcrypt** with 12 salt rounds
-- Original passwords are never stored
-- Secure comparison prevents timing attacks
-
-## 🤖 AI Suggestions Configuration
-
-The AI suggestion engine uses Google's Gemini API with a fallback rule-based system.
-
-### How It Works
-1. Patient's decrypted medical data is analyzed
-2. Gemini API generates personalized health suggestions
-3. If API fails, rule-based engine provides recommendations
-4. Suggestions cover diet, exercise, medication, and lifestyle
-
-### Customizing AI Behavior
-Edit `ai_suggestions.py` to modify:
-- API parameters (temperature, max tokens)
-- Rule-based conditions and recommendations
-- Suggestion categories and priorities
-
-## 📊 Database Schema
-
-### User Table
-| Field | Type | Description |
-|-------|------|-------------|
-| id | Integer | Primary key |
-| username | String(80) | Unique username |
-| email | String(120) | User email |
-| password_hash | String(255) | bcrypt hashed password |
-| role | Enum | ADMIN or PATIENT |
-| patient_id | String(20) | Links to Patient (nullable) |
-
-### Patient Table
-| Field | Type | Description |
-|-------|------|-------------|
-| patient_id | String(20) | Primary key (e.g., "P001") |
-| first_name | String(50) | Patient first name |
-| last_name | String(50) | Patient last name |
-| date_of_birth | Date | Birth date |
-| gender | String(10) | Gender |
-| phone | String(20) | Contact phone |
-| email | String(120) | Contact email |
-| blood_group | String(5) | Blood type |
-| encrypted_address | Text | RSA encrypted address |
-| encrypted_medical_history | Text | RSA encrypted history |
-| emergency_contact_name | String(100) | Emergency contact |
-| emergency_contact_phone | String(20) | Emergency phone |
-
-### Visit Table
-| Field | Type | Description |
-|-------|------|-------------|
-| id | Integer | Primary key |
-| patient_id | String(20) | Foreign key to Patient |
-| visit_date | DateTime | Visit timestamp |
-| visit_type | String(50) | Type of visit |
-| doctor_name | String(100) | Attending physician |
-| department | String(50) | Hospital department |
-| encrypted_diagnosis | Text | RSA encrypted diagnosis |
-| encrypted_prescriptions | Text | RSA encrypted prescriptions |
-| notes | Text | Additional notes |
-
-### Bill Table
-| Field | Type | Description |
-|-------|------|-------------|
-| id | Integer | Primary key |
-| patient_id | String(20) | Foreign key to Patient |
-| bill_date | DateTime | Bill generation date |
-| total_amount | Float | Total bill amount |
-| paid_amount | Float | Amount paid |
-| payment_status | String(20) | PENDING/PARTIAL/PAID |
-| encrypted_bill_details | Text | RSA encrypted itemization |
-
-### Report Table
-| Field | Type | Description |
-|-------|------|-------------|
-| id | Integer | Primary key |
-| patient_id | String(20) | Foreign key to Patient |
-| report_type | String(100) | Type of report |
-| report_date | DateTime | Report date |
-| encrypted_report_summary | Text | RSA encrypted summary |
-| file_path | String(255) | Path to report file |
-| created_by | String(100) | Report creator |
-
-## 🛠️ Development
-
-### Running in Debug Mode
-```bash
-# Set environment variable
-set FLASK_DEBUG=1  # Windows
-export FLASK_DEBUG=1  # Linux/macOS
-
-python app.py
-```
-
-### Resetting the Database
-```bash
-# Delete existing database
-del hospital.db  # Windows
-rm hospital.db   # Linux/macOS
-
-# Reinitialize
-python init_db.py
-```
-
-### Regenerating Encryption Keys
-```bash
-# Delete existing keys
-rmdir /s /q keys  # Windows
-rm -rf keys       # Linux/macOS
-
-# Keys auto-generate on next app start
-python app.py
-```
-
-> ⚠️ **Warning**: Regenerating keys will make existing encrypted data unreadable!
-
-## 🌐 Environment Variables
-
-Configure these in `.env` file:
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| SECRET_KEY | auto-generated | Flask session secret |
-| DATABASE_URL | sqlite:///hospital.db | Database connection string |
-| GEMINI_API_KEY | (configured) | Google Gemini API key |
-| FLASK_DEBUG | False | Enable debug mode |
-
-## 📝 API Reference
-
-### Authentication Routes
-| Route | Method | Description |
-|-------|--------|-------------|
-| `/login` | GET, POST | User login |
-| `/logout` | GET | User logout |
-| `/profile` | GET | View user profile |
-| `/change-password` | GET, POST | Change password |
-
-### Admin Routes
-| Route | Method | Description |
-|-------|--------|-------------|
-| `/admin/dashboard` | GET | Admin dashboard |
-| `/admin/patients` | GET | List all patients |
-| `/admin/patients/add` | GET, POST | Add new patient |
-| `/admin/patients/<id>` | GET | View patient details |
-| `/admin/patients/<id>/edit` | GET, POST | Edit patient |
-| `/admin/patients/<id>/delete` | POST | Delete patient |
-| `/admin/visits` | GET | List all visits |
-| `/admin/bills` | GET | List all bills |
-| `/admin/reports` | GET | List all reports |
-
-### Patient Routes
-| Route | Method | Description |
-|-------|--------|-------------|
-| `/patient/dashboard` | GET | Patient dashboard with AI suggestions |
-| `/patient/records` | GET | View medical records |
-| `/patient/bills` | GET | View bills |
-| `/patient/reports` | GET | View reports |
-
-## 🧪 Testing
-
-### Manual Testing Checklist
-- [ ] Admin login works
-- [ ] Patient login works
-- [ ] Admin can CRUD patients
-- [ ] Admin can manage visits, bills, reports
-- [ ] Patient can only view own data
-- [ ] Encrypted data displays correctly when decrypted
-- [ ] AI suggestions appear on patient dashboard
-- [ ] Password change works
-- [ ] Unauthorized access is blocked
-
-## 🔧 Troubleshooting
-
-### Common Issues
-
-**"Encryption key not found"**
-- Ensure `keys/` directory exists
-- Run `python app.py` to auto-generate keys
-
-**"Database locked"**
-- Close other applications using the database
-- Restart the Flask server
-
-**"Module not found"**
-- Activate virtual environment
-- Run `pip install -r requirements.txt`
-
-**"AI suggestions not working"**
-- Check Gemini API key in `.env`
-- Rule-based fallback will activate automatically
-
-## 📄 License
-
-This project is for educational purposes. Use responsibly and ensure compliance with healthcare data regulations (HIPAA, GDPR, etc.) in production environments.
-
-## 👥 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Open a Pull Request
-
-## 📞 Support
-
-For issues and questions, please open an issue on the project repository.
 
 ---
 
-**Built with ❤️ for Healthcare**
+## 🔗 How Blockchain Security Works
+
+### Data Flow
+
+1. **Patient data** entered via web interface
+2. **Sensitive fields** encrypted with RSA-4096
+3. **Encrypted data** stored in SQLite
+4. **SHA-256 hash** of record generated
+5. **Hash stored** on Ganache blockchain
+6. **Audit log** created on blockchain
+
+### Verification
+
+```
+┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│ Database     │────►│ Generate     │────►│ Compare with │
+│ Record       │     │ Hash         │     │ Blockchain   │
+└──────────────┘     └──────────────┘     └──────────────┘
+                                                 │
+                                                 ▼
+                                          ┌──────────────┐
+                                          │ ✓ Valid OR   │
+                                          │ ✗ Tampered   │
+                                          └──────────────┘
+```
+
+### Benefits
+
+| Feature | Benefit |
+|---------|---------|
+| **Immutability** | Records cannot be altered without detection |
+| **Audit Trail** | Every access logged permanently |
+| **Data Integrity** | Verify records haven't been tampered |
+| **Transparency** | All transactions visible |
+| **Non-repudiation** | Cannot deny actions taken |
+
+---
+
+## 🛡️ Smart Contract Functions
+
+| Function | Description |
+|----------|-------------|
+| `addRecord()` | Store record hash on blockchain |
+| `verifyRecord()` | Verify data integrity |
+| `getPatientRecords()` | Get all records for patient |
+| `getAuditLogs()` | Retrieve audit trail |
+| `authorizeProvider()` | Add authorized provider |
+| `revokeProvider()` | Remove authorization |
+
+---
+
+## 📡 API Endpoints
+
+### Blockchain Status
+```
+GET /blockchain/status
+```
+
+### Store Record
+```
+POST /blockchain/store-record
+{
+  "patient_id": 1,
+  "record_type": "VISIT",
+  "data": { ... }
+}
+```
+
+### Verify Record
+```
+POST /blockchain/verify-record
+{
+  "patient_id": 1,
+  "record_index": 0,
+  "data": { ... }
+}
+```
+
+### Sync Patient
+```
+POST /blockchain/sync-patient/<patient_id>
+```
+
+---
+
+## 🔧 Troubleshooting
+
+### Ganache Connection Failed
+**Solution:** Ensure Ganache is running on `http://127.0.0.1:7545`
+
+### Contract Not Deployed
+**Solution:** Run `python deploy_contract.py`
+
+### Solidity Compiler Error
+**Solution:** 
+```bash
+pip install py-solc-x
+python -c "from solcx import install_solc; install_solc('0.8.19')"
+```
+
+---
+
+## 🔐 Default Credentials
+
+**Admin Account:**
+- Email: `baveshchowdary1@gmail.com`
+- Password: `amulya1234`
+
+---
+
+## 📄 License
+
+MIT License
+
+---
+
+## 👨‍💻 Author
+
+**Bavesh Chowdary**  
+GitHub: [@ubvc04](https://github.com/ubvc04)

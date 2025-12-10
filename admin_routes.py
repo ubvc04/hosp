@@ -161,6 +161,24 @@ def add_patient():
             
             db.session.commit()
             
+            # Store patient info on blockchain
+            try:
+                from blockchain import get_blockchain
+                bc = get_blockchain()
+                if bc.is_connected() and bc.contract:
+                    patient_data = {
+                        'id': patient.id,
+                        'user_id': user.id,
+                        'dob': str(patient.date_of_birth) if patient.date_of_birth else None,
+                        'gender': patient.gender,
+                        'blood_group': patient.blood_group,
+                        'created_at': str(patient.created_at)
+                    }
+                    bc.add_record(patient.id, patient_data, 'PATIENT_INFO')
+            except Exception as bc_error:
+                # Don't fail patient creation if blockchain fails
+                current_app.logger.warning(f'Blockchain sync failed: {bc_error}')
+            
             success_msg = f'Patient {user.first_name} {user.last_name} added successfully!'
             if uploaded_files:
                 success_msg += f' {len(uploaded_files)} document(s) uploaded.'
@@ -332,6 +350,23 @@ def add_visit(patient_id=None):
             db.session.add(visit)
             db.session.commit()
             
+            # Store visit on blockchain
+            try:
+                from blockchain import get_blockchain
+                bc = get_blockchain()
+                if bc.is_connected() and bc.contract:
+                    visit_data = {
+                        'id': visit.id,
+                        'patient_id': patient_id,
+                        'visit_date': str(visit.visit_date),
+                        'doctor_name': visit.doctor_name,
+                        'department': visit.department,
+                        'created_at': str(visit.created_at)
+                    }
+                    bc.add_record(patient_id, visit_data, 'VISIT')
+            except Exception as bc_error:
+                current_app.logger.warning(f'Blockchain sync failed: {bc_error}')
+            
             flash('Visit added successfully!', 'success')
             return redirect(url_for('admin.view_patient', patient_id=patient_id))
             
@@ -385,6 +420,23 @@ def add_bill(patient_id=None):
             
             db.session.add(bill)
             db.session.commit()
+            
+            # Store bill on blockchain
+            try:
+                from blockchain import get_blockchain
+                bc = get_blockchain()
+                if bc.is_connected() and bc.contract:
+                    bill_data = {
+                        'id': bill.id,
+                        'patient_id': patient_id,
+                        'amount': str(bill.amount),
+                        'description': bill.description,
+                        'status': bill.status,
+                        'created_at': str(bill.created_at)
+                    }
+                    bc.add_record(patient_id, bill_data, 'BILL')
+            except Exception as bc_error:
+                current_app.logger.warning(f'Blockchain sync failed: {bc_error}')
             
             flash('Bill created successfully!', 'success')
             return redirect(url_for('admin.view_patient', patient_id=patient_id))
@@ -466,6 +518,24 @@ def add_report(patient_id=None):
             
             db.session.add(report)
             db.session.commit()
+            
+            # Store report on blockchain
+            try:
+                from blockchain import get_blockchain
+                bc = get_blockchain()
+                if bc.is_connected() and bc.contract:
+                    report_data = {
+                        'id': report.id,
+                        'patient_id': patient_id,
+                        'report_type': report.report_type,
+                        'report_date': str(report.report_date),
+                        'ordered_by': report.ordered_by,
+                        'status': report.status,
+                        'created_at': str(report.created_at)
+                    }
+                    bc.add_record(patient_id, report_data, 'REPORT')
+            except Exception as bc_error:
+                current_app.logger.warning(f'Blockchain sync failed: {bc_error}')
             
             flash('Report added successfully!', 'success')
             return redirect(url_for('admin.view_patient', patient_id=patient_id))
