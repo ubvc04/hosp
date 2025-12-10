@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Add Visit - Hospital Portal{% endblock %}
+
+{% block navbar %}
+{% include "admin/_navbar.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-content">
+    <div class="d-flex align-items-center mb-4">
+        <a href="{{ url_for('admin.visits_list') }}" class="btn btn-outline-secondary me-3">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <h1 class="page-title mb-0">
+            <i class="fas fa-calendar-plus me-2"></i>Record Patient Visit
+        </h1>
+    </div>
+    
+    <form method="POST" action="{{ url_for('admin.add_visit', patient_id=patient_id) if patient_id else url_for('admin.add_visit') }}" class="needs-validation" novalidate>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-user me-2"></i>Visit Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Patient <span class="text-danger">*</span></label>
+                            <select name="patient_id" class="form-select" required {% if patient_id %}disabled{% endif %}>
+                                <option value="">Select Patient</option>
+                                {% for p in patients %}
+                                <option value="{{ p.id }}" {% if patient_id and p.id == patient_id %}selected{% endif %}>
+                                    #{{ p.id }} - {{ p.user.first_name }} {{ p.user.last_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% if patient_id %}
+                            <input type="hidden" name="patient_id" value="{{ patient_id }}">
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Visit Date <span class="text-danger">*</span></label>
+                                <input type="date" name="visit_date" class="form-control" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Department <span class="text-danger">*</span></label>
+                                <select name="department" class="form-select" required>
+                                    <option value="">Select Department</option>
+                                    <option value="General Medicine">General Medicine</option>
+                                    <option value="Cardiology">Cardiology</option>
+                                    <option value="Orthopedics">Orthopedics</option>
+                                    <option value="Pediatrics">Pediatrics</option>
+                                    <option value="Gynecology">Gynecology</option>
+                                    <option value="Dermatology">Dermatology</option>
+                                    <option value="Neurology">Neurology</option>
+                                    <option value="Ophthalmology">Ophthalmology</option>
+                                    <option value="ENT">ENT</option>
+                                    <option value="Pulmonology">Pulmonology</option>
+                                    <option value="Gastroenterology">Gastroenterology</option>
+                                    <option value="Endocrinology">Endocrinology</option>
+                                    <option value="Emergency">Emergency</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Doctor Name <span class="text-danger">*</span></label>
+                            <input type="text" name="doctor_name" class="form-control" placeholder="Dr. " required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-notes-medical me-2"></i>Clinical Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Diagnosis</label>
+                            <textarea name="diagnosis" class="form-control" rows="3" placeholder="Patient diagnosis..."></textarea>
+                            <small class="text-muted"><i class="fas fa-lock me-1"></i>This field is encrypted</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Prescriptions</label>
+                            <textarea name="prescriptions" class="form-control" rows="4" placeholder="1. Medicine name - dosage&#10;2. Medicine name - dosage"></textarea>
+                            <small class="text-muted"><i class="fas fa-lock me-1"></i>This field is encrypted</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Notes</label>
+                            <textarea name="notes" class="form-control" rows="2" placeholder="Additional notes..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-4 d-flex gap-2">
+            <button type="submit" class="btn btn-primary btn-lg">
+                <i class="fas fa-save me-2"></i>Record Visit
+            </button>
+            <a href="{{ url_for('admin.visits_list') }}" class="btn btn-outline-secondary btn-lg">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

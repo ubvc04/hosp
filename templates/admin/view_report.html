@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+
+{% block title %}View Report - Hospital Portal{% endblock %}
+
+{% block navbar %}
+{% include "admin/_navbar.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-content">
+    <div class="d-flex align-items-center mb-4">
+        <a href="{{ url_for('admin.reports_list') }}" class="btn btn-outline-secondary me-3">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <h1 class="page-title mb-0">
+            <i class="fas fa-x-ray me-2"></i>Report #{{ report.id }}
+        </h1>
+        <div class="ms-auto">
+            {% if report.status == 'pending' %}
+            <span class="badge bg-warning fs-6"><i class="fas fa-clock me-1"></i>Pending</span>
+            {% elif report.status == 'completed' %}
+            <span class="badge bg-success fs-6"><i class="fas fa-check me-1"></i>Completed</span>
+            {% elif report.status == 'reviewed' %}
+            <span class="badge bg-info fs-6"><i class="fas fa-eye me-1"></i>Reviewed</span>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="row g-4">
+        <!-- Report Information -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Report Information</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <td class="fw-medium text-muted" width="40%">Report ID</td>
+                            <td>#{{ report.id }}</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-medium text-muted">Report Type</td>
+                            <td>
+                                {% if report.report_type == 'x-ray' %}
+                                <span class="badge bg-info"><i class="fas fa-x-ray me-1"></i>X-Ray</span>
+                                {% elif report.report_type == 'mri' %}
+                                <span class="badge bg-purple"><i class="fas fa-brain me-1"></i>MRI</span>
+                                {% elif report.report_type == 'ct-scan' %}
+                                <span class="badge bg-secondary"><i class="fas fa-atom me-1"></i>CT Scan</span>
+                                {% elif report.report_type == 'blood-test' %}
+                                <span class="badge bg-danger"><i class="fas fa-vial me-1"></i>Blood Test</span>
+                                {% else %}
+                                <span class="badge bg-dark">{{ report.report_type|title }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="fw-medium text-muted">Report Date</td>
+                            <td>{{ report.report_date.strftime('%B %d, %Y') if report.report_date else 'N/A' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-medium text-muted">Ordered By</td>
+                            <td>{{ report.ordered_by or 'N/A' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-medium text-muted">Performed By</td>
+                            <td>{{ report.performed_by or 'N/A' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-medium text-muted">Created</td>
+                            <td>{{ report.created_at.strftime('%b %d, %Y %H:%M') if report.created_at else 'N/A' }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Patient Information -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>Patient Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="avatar-circle me-3">
+                            {{ report.patient.user.first_name[0] }}{{ report.patient.user.last_name[0] }}
+                        </div>
+                        <div>
+                            <h5 class="mb-0">{{ report.patient.user.first_name }} {{ report.patient.user.last_name }}</h5>
+                            <span class="text-muted">Patient ID: {{ report.patient_id }}</span>
+                        </div>
+                    </div>
+                    <table class="table table-borderless">
+                        <tr>
+                            <td class="fw-medium text-muted" width="40%">Email</td>
+                            <td>{{ report.patient.user.email }}</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-medium text-muted">Phone</td>
+                            <td>{{ report.patient.user.phone or 'N/A' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-medium text-muted">Date of Birth</td>
+                            <td>{{ report.patient.date_of_birth.strftime('%B %d, %Y') if report.patient.date_of_birth else 'N/A' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-medium text-muted">Blood Group</td>
+                            <td><span class="badge bg-danger">{{ report.patient.blood_group or 'N/A' }}</span></td>
+                        </tr>
+                    </table>
+                    <a href="{{ url_for('admin.view_patient', patient_id=report.patient_id) }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-external-link-alt me-1"></i>View Full Patient Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Report Details (Encrypted) -->
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-file-medical me-2"></i>Report Details
+                        <span class="badge bg-success ms-2"><i class="fas fa-lock me-1"></i>Decrypted</span>
+                    </h5>
+                    {% if report.file_path %}
+                    <a href="{{ url_for('admin.download_report', report_id=report.id) }}" class="btn btn-success btn-sm">
+                        <i class="fas fa-download me-2"></i>Download Report File
+                    </a>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-2"><i class="fas fa-clipboard me-1"></i>Summary</h6>
+                            <div class="bg-light p-3 rounded mb-3">
+                                {{ report_summary or 'No summary available' }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-2"><i class="fas fa-microscope me-1"></i>Findings / Results</h6>
+                            <div class="bg-light p-3 rounded mb-3">
+                                <pre class="mb-0" style="white-space: pre-wrap; font-family: inherit;">{{ findings or 'No findings recorded' }}</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Report File Preview (if applicable) -->
+        {% if report.file_path %}
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-image me-2"></i>Report File Preview</h5>
+                </div>
+                <div class="card-body text-center">
+                    {% if report.file_path.endswith(('.png', '.jpg', '.jpeg', '.gif')) %}
+                    <img src="{{ url_for('static', filename='uploads/' + report.file_path) }}" 
+                         class="img-fluid rounded shadow" style="max-height: 500px;" alt="Report Image">
+                    {% elif report.file_path.endswith('.pdf') %}
+                    <div class="bg-light p-4 rounded">
+                        <i class="fas fa-file-pdf text-danger" style="font-size: 4rem;"></i>
+                        <p class="mt-3 mb-0">PDF Document</p>
+                        <a href="{{ url_for('admin.download_report', report_id=report.id) }}" class="btn btn-primary mt-2">
+                            <i class="fas fa-download me-2"></i>Download PDF
+                        </a>
+                    </div>
+                    {% else %}
+                    <div class="bg-light p-4 rounded">
+                        <i class="fas fa-file text-muted" style="font-size: 4rem;"></i>
+                        <p class="mt-3 mb-0">File attached</p>
+                        <a href="{{ url_for('admin.download_report', report_id=report.id) }}" class="btn btn-primary mt-2">
+                            <i class="fas fa-download me-2"></i>Download File
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Action Buttons -->
+    <div class="mt-4 d-flex gap-2 flex-wrap">
+        <form method="POST" action="{{ url_for('admin.update_report_status', report_id=report.id) }}" class="d-inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            {% if report.status == 'pending' %}
+            <input type="hidden" name="status" value="completed">
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-check me-2"></i>Mark as Completed
+            </button>
+            {% elif report.status == 'completed' %}
+            <input type="hidden" name="status" value="reviewed">
+            <button type="submit" class="btn btn-info">
+                <i class="fas fa-eye me-2"></i>Mark as Reviewed
+            </button>
+            {% endif %}
+        </form>
+        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+            <i class="fas fa-trash me-2"></i>Delete Report
+        </button>
+        <a href="{{ url_for('admin.add_report', patient_id=report.patient_id) }}" class="btn btn-outline-primary">
+            <i class="fas fa-plus me-2"></i>Add Another Report
+        </a>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-exclamation-triangle text-danger me-2"></i>Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this report? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="{{ url_for('admin.delete_report', report_id=report.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-2"></i>Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.avatar-circle {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #0d6efd, #198754);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+.bg-purple {
+    background-color: #6f42c1;
+}
+</style>
+{% endblock %}

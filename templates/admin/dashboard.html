@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Hospital Portal{% endblock %}
+
+{% block navbar %}
+{% include "admin/_navbar.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Welcome Banner -->
+    <div class="welcome-banner mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2><i class="fas fa-hospital-user me-2"></i>Welcome, {{ current_user.first_name }}!</h2>
+                <p class="mb-0">Here's what's happening in your hospital today.</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <a href="{{ url_for('admin.add_patient') }}" class="btn btn-light btn-lg">
+                    <i class="fas fa-user-plus me-2"></i>Add New Patient
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="mb-0">{{ total_patients }}</h3>
+                            <p class="mb-0">Total Patients</p>
+                        </div>
+                        <div>
+                            <i class="fas fa-users fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="mb-0">{{ total_visits }}</h3>
+                            <p class="mb-0">Total Visits</p>
+                        </div>
+                        <div>
+                            <i class="fas fa-calendar-check fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="mb-0">{{ total_bills }}</h3>
+                            <p class="mb-0">Total Bills</p>
+                        </div>
+                        <div>
+                            <i class="fas fa-file-invoice-dollar fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="mb-0">{{ pending_bills }}</h3>
+                            <p class="mb-0">Pending Bills</p>
+                        </div>
+                        <div>
+                            <i class="fas fa-clock fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content Row -->
+    <div class="row g-4">
+        <!-- Recent Patients -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-user-plus me-2"></i>Recent Patients</h5>
+                    <a href="{{ url_for('admin.patients_list') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    {% if recent_patients %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Registered</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for patient in recent_patients %}
+                                    <tr>
+                                        <td>
+                                            <a href="{{ url_for('admin.view_patient', patient_id=patient.id) }}">
+                                                {{ patient.user.first_name }} {{ patient.user.last_name }}
+                                            </a>
+                                        </td>
+                                        <td>{{ patient.user.email }}</td>
+                                        <td>{{ patient.created_at.strftime('%b %d, %Y') if patient.created_at else 'N/A' }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-user-plus fa-4x text-muted mb-3"></i>
+                            <h5>No Patients Yet</h5>
+                            <p class="text-muted">New patients will appear here.</p>
+                            <a href="{{ url_for('admin.add_patient') }}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Add First Patient
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Visits -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-calendar-check me-2"></i>Recent Visits</h5>
+                    <a href="{{ url_for('admin.visits_list') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    {% if recent_visits %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Patient</th>
+                                        <th>Type</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for visit in recent_visits %}
+                                    <tr>
+                                        <td>{{ visit.patient.user.first_name }} {{ visit.patient.user.last_name }}</td>
+                                        <td><span class="badge bg-info">{{ visit.department }}</span></td>
+                                        <td>{{ visit.visit_date.strftime('%b %d, %Y') if visit.visit_date else 'N/A' }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-calendar fa-4x text-muted mb-3"></i>
+                            <h5>No Visits Yet</h5>
+                            <p class="text-muted">Patient visits will appear here.</p>
+                            <a href="{{ url_for('admin.add_visit') }}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Record Visit
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="row g-4 mt-2">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <a href="{{ url_for('admin.add_patient') }}" class="btn btn-outline-primary w-100 py-3">
+                                <i class="fas fa-user-plus fa-2x mb-2 d-block"></i>
+                                Add New Patient
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{{ url_for('admin.add_visit') }}" class="btn btn-outline-success w-100 py-3">
+                                <i class="fas fa-calendar-plus fa-2x mb-2 d-block"></i>
+                                Record Visit
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{{ url_for('admin.add_bill') }}" class="btn btn-outline-warning w-100 py-3">
+                                <i class="fas fa-file-invoice-dollar fa-2x mb-2 d-block"></i>
+                                Create Bill
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{{ url_for('admin.add_report') }}" class="btn btn-outline-info w-100 py-3">
+                                <i class="fas fa-file-medical fa-2x mb-2 d-block"></i>
+                                Add Report
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

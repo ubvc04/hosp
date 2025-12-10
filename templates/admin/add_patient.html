@@ -1,0 +1,410 @@
+{% extends "base.html" %}
+
+{% block title %}Add Patient - Hospital Portal{% endblock %}
+
+{% block navbar %}
+{% include "admin/_navbar.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-content">
+    <div class="d-flex align-items-center mb-4">
+        <a href="{{ url_for('admin.patients_list') }}" class="btn btn-outline-secondary me-3">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <h1 class="page-title mb-0">
+            <i class="fas fa-user-plus me-2"></i>Add New Patient
+        </h1>
+    </div>
+    
+    <form method="POST" action="{{ url_for('admin.add_patient') }}" class="needs-validation" enctype="multipart/form-data" novalidate>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="row g-4">
+            <!-- Basic Information -->
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-user me-2"></i>Account Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">First Name <span class="text-danger">*</span></label>
+                                <input type="text" name="first_name" class="form-control" placeholder="First name" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Last Name <span class="text-danger">*</span></label>
+                                <input type="text" name="last_name" class="form-control" placeholder="Last name" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Email <span class="text-danger">*</span></label>
+                            <input type="email" name="email" class="form-control" placeholder="patient@email.com" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            <input type="password" name="password" class="form-control" placeholder="Leave blank for default (Patient@123)">
+                            <small class="text-muted">Default password: Patient@123</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Phone</label>
+                            <input type="tel" name="phone" class="form-control" placeholder="+1 234 567 8900">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Medical Information -->
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-notes-medical me-2"></i>Medical Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Date of Birth</label>
+                                <input type="date" name="date_of_birth" class="form-control">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Gender</label>
+                                <select name="gender" class="form-select">
+                                    <option value="">Select Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Blood Group</label>
+                            <select name="blood_group" class="form-select">
+                                <option value="">Select Blood Group</option>
+                                <option value="A+">A+</option>
+                                <option value="A-">A-</option>
+                                <option value="B+">B+</option>
+                                <option value="B-">B-</option>
+                                <option value="AB+">AB+</option>
+                                <option value="AB-">AB-</option>
+                                <option value="O+">O+</option>
+                                <option value="O-">O-</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Health Condition / Disease</label>
+                            <select name="health_condition" class="form-select" id="healthCondition">
+                                <option value="">Select Health Condition</option>
+                                <optgroup label="Cardiovascular">
+                                    <option value="Hypertension">Hypertension (High Blood Pressure)</option>
+                                    <option value="Heart Disease">Heart Disease</option>
+                                    <option value="Coronary Artery Disease">Coronary Artery Disease</option>
+                                    <option value="Heart Failure">Heart Failure</option>
+                                    <option value="Arrhythmia">Arrhythmia</option>
+                                </optgroup>
+                                <optgroup label="Respiratory">
+                                    <option value="Asthma">Asthma</option>
+                                    <option value="COPD">COPD</option>
+                                    <option value="Pneumonia">Pneumonia</option>
+                                    <option value="Bronchitis">Bronchitis</option>
+                                    <option value="Tuberculosis">Tuberculosis</option>
+                                </optgroup>
+                                <optgroup label="Metabolic & Endocrine">
+                                    <option value="Diabetes Type 1">Diabetes Type 1</option>
+                                    <option value="Diabetes Type 2">Diabetes Type 2</option>
+                                    <option value="Thyroid Disorder">Thyroid Disorder</option>
+                                    <option value="Obesity">Obesity</option>
+                                </optgroup>
+                                <optgroup label="Neurological">
+                                    <option value="Migraine">Migraine</option>
+                                    <option value="Epilepsy">Epilepsy</option>
+                                    <option value="Parkinson's Disease">Parkinson's Disease</option>
+                                    <option value="Alzheimer's Disease">Alzheimer's Disease</option>
+                                    <option value="Stroke">Stroke</option>
+                                </optgroup>
+                                <optgroup label="Musculoskeletal">
+                                    <option value="Arthritis">Arthritis</option>
+                                    <option value="Osteoporosis">Osteoporosis</option>
+                                    <option value="Back Pain">Back Pain</option>
+                                    <option value="Fracture">Fracture</option>
+                                </optgroup>
+                                <optgroup label="Gastrointestinal">
+                                    <option value="Gastritis">Gastritis</option>
+                                    <option value="Ulcer">Ulcer</option>
+                                    <option value="IBS">Irritable Bowel Syndrome (IBS)</option>
+                                    <option value="Liver Disease">Liver Disease</option>
+                                </optgroup>
+                                <optgroup label="Kidney & Urinary">
+                                    <option value="Kidney Disease">Kidney Disease</option>
+                                    <option value="Kidney Stones">Kidney Stones</option>
+                                    <option value="UTI">Urinary Tract Infection</option>
+                                </optgroup>
+                                <optgroup label="Infectious Diseases">
+                                    <option value="COVID-19">COVID-19</option>
+                                    <option value="Dengue">Dengue</option>
+                                    <option value="Malaria">Malaria</option>
+                                    <option value="Typhoid">Typhoid</option>
+                                    <option value="Hepatitis">Hepatitis</option>
+                                </optgroup>
+                                <optgroup label="Cancer">
+                                    <option value="Cancer">Cancer (General)</option>
+                                    <option value="Breast Cancer">Breast Cancer</option>
+                                    <option value="Lung Cancer">Lung Cancer</option>
+                                    <option value="Leukemia">Leukemia</option>
+                                </optgroup>
+                                <optgroup label="Mental Health">
+                                    <option value="Depression">Depression</option>
+                                    <option value="Anxiety">Anxiety Disorder</option>
+                                    <option value="Bipolar Disorder">Bipolar Disorder</option>
+                                </optgroup>
+                                <optgroup label="Other">
+                                    <option value="Anemia">Anemia</option>
+                                    <option value="Allergies">Allergies</option>
+                                    <option value="Skin Disorder">Skin Disorder</option>
+                                    <option value="Eye Problem">Eye Problem</option>
+                                    <option value="ENT Problem">ENT Problem</option>
+                                    <option value="Other">Other</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3" id="otherConditionDiv" style="display: none;">
+                            <label class="form-label">Specify Other Condition</label>
+                            <input type="text" name="other_condition" class="form-control" placeholder="Please specify the condition">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Emergency Contact</label>
+                            <input type="text" name="emergency_contact" class="form-control" placeholder="Name - Phone Number">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Medical History</label>
+                            <textarea name="medical_history" class="form-control" rows="3" placeholder="Previous medical conditions, surgeries, etc."></textarea>
+                            <small class="text-muted"><i class="fas fa-lock me-1"></i>This field is encrypted</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Document Uploads -->
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-file-medical me-2"></i>Medical Documents <span class="text-muted fw-normal">(Optional)</span></h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-4">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Upload any previous medical documents. Supported formats: PDF, JPG, PNG (Max 16MB each)
+                        </p>
+                        
+                        <div class="row g-4">
+                            <!-- Medical Bills -->
+                            <div class="col-md-6 col-lg-3">
+                                <div class="upload-card">
+                                    <div class="upload-icon">
+                                        <i class="fas fa-file-invoice-dollar"></i>
+                                    </div>
+                                    <label class="form-label">Medical Bills</label>
+                                    <input type="file" name="medical_bills" class="form-control" accept=".pdf,.jpg,.jpeg,.png" multiple>
+                                    <small class="text-muted">Previous hospital bills</small>
+                                </div>
+                            </div>
+                            
+                            <!-- OP Reports -->
+                            <div class="col-md-6 col-lg-3">
+                                <div class="upload-card">
+                                    <div class="upload-icon">
+                                        <i class="fas fa-notes-medical"></i>
+                                    </div>
+                                    <label class="form-label">OP Reports</label>
+                                    <input type="file" name="op_reports" class="form-control" accept=".pdf,.jpg,.jpeg,.png" multiple>
+                                    <small class="text-muted">Outpatient reports</small>
+                                </div>
+                            </div>
+                            
+                            <!-- Scan Reports -->
+                            <div class="col-md-6 col-lg-3">
+                                <div class="upload-card">
+                                    <div class="upload-icon">
+                                        <i class="fas fa-x-ray"></i>
+                                    </div>
+                                    <label class="form-label">Scan Reports</label>
+                                    <input type="file" name="scan_reports" class="form-control" accept=".pdf,.jpg,.jpeg,.png,.dcm" multiple>
+                                    <small class="text-muted">X-Ray, MRI, CT Scan, etc.</small>
+                                </div>
+                            </div>
+                            
+                            <!-- Lab Reports -->
+                            <div class="col-md-6 col-lg-3">
+                                <div class="upload-card">
+                                    <div class="upload-icon">
+                                        <i class="fas fa-flask"></i>
+                                    </div>
+                                    <label class="form-label">Lab Reports</label>
+                                    <input type="file" name="lab_reports" class="form-control" accept=".pdf,.jpg,.jpeg,.png" multiple>
+                                    <small class="text-muted">Blood tests, urine tests, etc.</small>
+                                </div>
+                            </div>
+                            
+                            <!-- Prescriptions -->
+                            <div class="col-md-6 col-lg-3">
+                                <div class="upload-card">
+                                    <div class="upload-icon">
+                                        <i class="fas fa-prescription"></i>
+                                    </div>
+                                    <label class="form-label">Prescriptions</label>
+                                    <input type="file" name="prescriptions" class="form-control" accept=".pdf,.jpg,.jpeg,.png" multiple>
+                                    <small class="text-muted">Doctor prescriptions</small>
+                                </div>
+                            </div>
+                            
+                            <!-- Discharge Summary -->
+                            <div class="col-md-6 col-lg-3">
+                                <div class="upload-card">
+                                    <div class="upload-icon">
+                                        <i class="fas fa-file-medical-alt"></i>
+                                    </div>
+                                    <label class="form-label">Discharge Summary</label>
+                                    <input type="file" name="discharge_summary" class="form-control" accept=".pdf,.jpg,.jpeg,.png" multiple>
+                                    <small class="text-muted">Hospital discharge papers</small>
+                                </div>
+                            </div>
+                            
+                            <!-- Insurance Documents -->
+                            <div class="col-md-6 col-lg-3">
+                                <div class="upload-card">
+                                    <div class="upload-icon">
+                                        <i class="fas fa-shield-alt"></i>
+                                    </div>
+                                    <label class="form-label">Insurance Documents</label>
+                                    <input type="file" name="insurance_docs" class="form-control" accept=".pdf,.jpg,.jpeg,.png" multiple>
+                                    <small class="text-muted">Insurance cards/policies</small>
+                                </div>
+                            </div>
+                            
+                            <!-- Other Documents -->
+                            <div class="col-md-6 col-lg-3">
+                                <div class="upload-card">
+                                    <div class="upload-icon">
+                                        <i class="fas fa-folder-open"></i>
+                                    </div>
+                                    <label class="form-label">Other Documents</label>
+                                    <input type="file" name="other_docs" class="form-control" accept=".pdf,.jpg,.jpeg,.png" multiple>
+                                    <small class="text-muted">Any other medical docs</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-4 d-flex gap-2">
+            <button type="submit" class="btn btn-primary btn-lg">
+                <i class="fas fa-save me-2"></i>Add Patient
+            </button>
+            <a href="{{ url_for('admin.patients_list') }}" class="btn btn-outline-secondary btn-lg">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+<style>
+.upload-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 2px dashed #dee2e6;
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.upload-card:hover {
+    border-color: #667eea;
+    background: linear-gradient(135deg, #f0f4ff 0%, #e8ecff 100%);
+    transform: translateY(-2px);
+}
+
+.upload-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+}
+
+.upload-icon i {
+    font-size: 1.25rem;
+    color: white;
+}
+
+.upload-card .form-label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.upload-card .form-control {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.upload-card small {
+    display: block;
+    margin-top: 0.5rem;
+}
+
+#healthCondition optgroup {
+    font-weight: 600;
+    color: #667eea;
+}
+
+#healthCondition option {
+    font-weight: normal;
+    color: #333;
+    padding: 5px;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const healthCondition = document.getElementById('healthCondition');
+    const otherConditionDiv = document.getElementById('otherConditionDiv');
+    
+    healthCondition.addEventListener('change', function() {
+        if (this.value === 'Other') {
+            otherConditionDiv.style.display = 'block';
+        } else {
+            otherConditionDiv.style.display = 'none';
+        }
+    });
+    
+    const fileInputs = document.querySelectorAll('input[type="file"]');
+    fileInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            const maxSize = 16 * 1024 * 1024;
+            for (let file of this.files) {
+                if (file.size > maxSize) {
+                    alert(`File "${file.name}" is too large. Maximum size is 16MB.`);
+                    this.value = '';
+                    return;
+                }
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

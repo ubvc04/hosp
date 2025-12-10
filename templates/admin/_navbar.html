@@ -1,0 +1,64 @@
+<!-- Admin Navigation Bar -->
+<nav class="navbar navbar-expand-lg navbar-dark navbar-hospital">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{{ url_for('admin.dashboard') }}">
+            <i class="fas fa-hospital"></i> Hospital Portal
+        </a>
+        
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarAdmin">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="navbarAdmin">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link {{ 'active' if request.endpoint == 'admin.dashboard' }}" href="{{ url_for('admin.dashboard') }}">
+                        <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                        <i class="fas fa-users me-1"></i> Patients
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ url_for('admin.patients_list') }}"><i class="fas fa-list me-2"></i>All Patients</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('admin.add_patient') }}"><i class="fas fa-user-plus me-2"></i>Add Patient</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ 'active' if request.endpoint == 'admin.visits_list' }}" href="{{ url_for('admin.visits_list') }}">
+                        <i class="fas fa-calendar-check me-1"></i> Visits
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ 'active' if request.endpoint == 'admin.bills_list' }}" href="{{ url_for('admin.bills_list') }}">
+                        <i class="fas fa-file-invoice-dollar me-1"></i> Bills
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ 'active' if request.endpoint == 'admin.reports_list' }}" href="{{ url_for('admin.reports_list') }}">
+                        <i class="fas fa-x-ray me-1"></i> Reports
+                    </a>
+                </li>
+            </ul>
+            
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link {{ 'active' if request.endpoint == 'admin.settings' }}" href="{{ url_for('admin.settings') }}">
+                        <i class="fas fa-cog me-1"></i> Settings
+                    </a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-shield me-1"></i> {{ current_user.first_name }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{{ url_for('auth.change_password') }}"><i class="fas fa-key me-2"></i>Change Password</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

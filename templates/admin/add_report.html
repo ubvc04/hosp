@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}Add Report - Hospital Portal{% endblock %}
+
+{% block navbar %}
+{% include "admin/_navbar.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-content">
+    <div class="d-flex align-items-center mb-4">
+        <a href="{{ url_for('admin.reports_list') }}" class="btn btn-outline-secondary me-3">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <h1 class="page-title mb-0">
+            <i class="fas fa-x-ray me-2"></i>Add Medical Report
+        </h1>
+    </div>
+    
+    <form method="POST" action="{{ url_for('admin.add_report', patient_id=patient_id) if patient_id else url_for('admin.add_report') }}" class="needs-validation" novalidate>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Report Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Patient <span class="text-danger">*</span></label>
+                            <select name="patient_id" class="form-select" required {% if patient_id %}disabled{% endif %}>
+                                <option value="">Select Patient</option>
+                                {% for p in patients %}
+                                <option value="{{ p.id }}" {% if patient_id and p.id == patient_id %}selected{% endif %}>
+                                    #{{ p.id }} - {{ p.user.first_name }} {{ p.user.last_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% if patient_id %}
+                            <input type="hidden" name="patient_id" value="{{ patient_id }}">
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Report Type <span class="text-danger">*</span></label>
+                                <select name="report_type" class="form-select" required>
+                                    <option value="">Select Type</option>
+                                    <option value="blood-test">Blood Test</option>
+                                    <option value="x-ray">X-Ray</option>
+                                    <option value="mri">MRI</option>
+                                    <option value="ct-scan">CT Scan</option>
+                                    <option value="ultrasound">Ultrasound</option>
+                                    <option value="ecg">ECG</option>
+                                    <option value="urine-test">Urine Test</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Report Date <span class="text-danger">*</span></label>
+                                <input type="date" name="report_date" class="form-control" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Ordered By (Doctor)</label>
+                            <input type="text" name="ordered_by" class="form-control" placeholder="Dr. ">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Performed By</label>
+                            <input type="text" name="performed_by" class="form-control" placeholder="Lab/Technician name">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Status</label>
+                            <select name="status" class="form-select">
+                                <option value="pending">Pending</option>
+                                <option value="completed">Completed</option>
+                                <option value="reviewed">Reviewed</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-file-medical me-2"></i>Report Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Summary</label>
+                            <textarea name="summary" class="form-control" rows="4" placeholder="Brief summary of the report..."></textarea>
+                            <small class="text-muted"><i class="fas fa-lock me-1"></i>This field is encrypted</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Findings / Results</label>
+                            <textarea name="findings" class="form-control" rows="6" placeholder="Detailed findings and results..."></textarea>
+                            <small class="text-muted"><i class="fas fa-lock me-1"></i>This field is encrypted</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-4 d-flex gap-2">
+            <button type="submit" class="btn btn-primary btn-lg">
+                <i class="fas fa-save me-2"></i>Add Report
+            </button>
+            <a href="{{ url_for('admin.reports_list') }}" class="btn btn-outline-secondary btn-lg">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+
+{% block title %}My Reports - Hospital Portal{% endblock %}
+
+{% block navbar %}
+{% include "patient/_navbar.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="page-title">
+            <i class="fas fa-x-ray me-2"></i>My Medical Reports
+        </h1>
+    </div>
+    
+    <!-- Summary Stats -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="stat-card bg-primary">
+                <i class="fas fa-file-medical stat-icon"></i>
+                <div class="stat-number">{{ reports|length if reports else 0 }}</div>
+                <div class="stat-label">Total Reports</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card bg-info">
+                <i class="fas fa-x-ray stat-icon"></i>
+                <div class="stat-number">{{ reports|selectattr('report_type', 'equalto', 'x-ray')|list|length if reports else 0 }}</div>
+                <div class="stat-label">X-Rays</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card bg-danger">
+                <i class="fas fa-vial stat-icon"></i>
+                <div class="stat-number">{{ reports|selectattr('report_type', 'equalto', 'blood-test')|list|length if reports else 0 }}</div>
+                <div class="stat-label">Blood Tests</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card bg-success">
+                <i class="fas fa-check-circle stat-icon"></i>
+                <div class="stat-number">{{ reports|selectattr('status', 'equalto', 'completed')|list|length if reports else 0 }}</div>
+                <div class="stat-label">Completed</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Reports List -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-list me-2"></i>Report History</h5>
+        </div>
+        <div class="card-body">
+            {% if reports %}
+            <div class="row g-4">
+                {% for report in reports %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 report-card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span>
+                                {% if report.report_type == 'x-ray' %}
+                                <i class="fas fa-x-ray text-info me-1"></i>X-Ray
+                                {% elif report.report_type == 'mri' %}
+                                <i class="fas fa-brain text-purple me-1"></i>MRI
+                                {% elif report.report_type == 'ct-scan' %}
+                                <i class="fas fa-atom text-secondary me-1"></i>CT Scan
+                                {% elif report.report_type == 'blood-test' %}
+                                <i class="fas fa-vial text-danger me-1"></i>Blood Test
+                                {% elif report.report_type == 'ultrasound' %}
+                                <i class="fas fa-wave-square text-primary me-1"></i>Ultrasound
+                                {% else %}
+                                <i class="fas fa-file-alt text-dark me-1"></i>{{ report.report_type|title }}
+                                {% endif %}
+                            </span>
+                            {% if report.status == 'pending' %}
+                            <span class="badge bg-warning">Pending</span>
+                            {% elif report.status == 'completed' %}
+                            <span class="badge bg-success">Completed</span>
+                            {% elif report.status == 'reviewed' %}
+                            <span class="badge bg-info">Reviewed</span>
+                            {% endif %}
+                        </div>
+                        <div class="card-body">
+                            <h6 class="card-title">Report #{{ report.id }}</h6>
+                            <p class="text-muted small mb-2">
+                                <i class="fas fa-calendar me-1"></i>
+                                {{ report.report_date.strftime('%B %d, %Y') if report.report_date else 'N/A' }}
+                            </p>
+                            {% if report.ordered_by %}
+                            <p class="text-muted small mb-2">
+                                <i class="fas fa-user-md me-1"></i>Ordered by: {{ report.ordered_by }}
+                            </p>
+                            {% endif %}
+                            {% if report.decrypted_summary %}
+                            <p class="card-text small">
+                                {{ report.decrypted_summary[:100] }}{% if report.decrypted_summary|length > 100 %}...{% endif %}
+                            </p>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <button type="button" class="btn btn-outline-success btn-sm w-100" 
+                                    data-bs-toggle="modal" data-bs-target="#reportModal{{ report.id }}">
+                                <i class="fas fa-eye me-1"></i>View Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-x-ray text-muted" style="font-size: 4rem;"></i>
+                <h4 class="mt-3 text-muted">No Medical Reports</h4>
+                <p class="text-muted">Your medical reports will appear here once added by your doctor.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Report Detail Modals -->
+{% for report in reports %}
+<div class="modal fade" id="reportModal{{ report.id }}" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    {% if report.report_type == 'x-ray' %}
+                    <i class="fas fa-x-ray text-info me-2"></i>X-Ray Report
+                    {% elif report.report_type == 'mri' %}
+                    <i class="fas fa-brain text-purple me-2"></i>MRI Report
+                    {% elif report.report_type == 'ct-scan' %}
+                    <i class="fas fa-atom me-2"></i>CT Scan Report
+                    {% elif report.report_type == 'blood-test' %}
+                    <i class="fas fa-vial text-danger me-2"></i>Blood Test Report
+                    {% else %}
+                    <i class="fas fa-file-medical me-2"></i>{{ report.report_type|title }} Report
+                    {% endif %}
+                    #{{ report.id }}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <table class="table table-borderless table-sm">
+                            <tr>
+                                <td class="text-muted">Report Date</td>
+                                <td class="fw-medium">{{ report.report_date.strftime('%B %d, %Y') if report.report_date else 'N/A' }}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Ordered By</td>
+                                <td class="fw-medium">{{ report.ordered_by or 'N/A' }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-borderless table-sm">
+                            <tr>
+                                <td class="text-muted">Performed By</td>
+                                <td class="fw-medium">{{ report.performed_by or 'N/A' }}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Status</td>
+                                <td>
+                                    {% if report.status == 'pending' %}
+                                    <span class="badge bg-warning">Pending</span>
+                                    {% elif report.status == 'completed' %}
+                                    <span class="badge bg-success">Completed</span>
+                                    {% elif report.status == 'reviewed' %}
+                                    <span class="badge bg-info">Reviewed</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                
+                {% if report.decrypted_summary %}
+                <div class="mb-3">
+                    <h6 class="text-muted">
+                        <i class="fas fa-clipboard me-1"></i>Summary
+                        <span class="badge bg-success ms-2"><i class="fas fa-lock me-1"></i>Encrypted</span>
+                    </h6>
+                    <div class="p-3 bg-light rounded">
+                        {{ report.decrypted_summary }}
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if report.decrypted_findings %}
+                <div class="mb-3">
+                    <h6 class="text-muted">
+                        <i class="fas fa-microscope me-1"></i>Findings
+                        <span class="badge bg-success ms-2"><i class="fas fa-lock me-1"></i>Encrypted</span>
+                    </h6>
+                    <div class="p-3 bg-light rounded">
+                        <pre style="white-space: pre-wrap; font-family: inherit; margin: 0;">{{ report.decrypted_findings }}</pre>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if report.file_path %}
+                <div class="text-center p-4 bg-light rounded">
+                    <i class="fas fa-file-download text-success" style="font-size: 2rem;"></i>
+                    <p class="mt-2 mb-0">Report file is available</p>
+                    <a href="{{ url_for('patient.download_report', report_id=report.id) }}" class="btn btn-success mt-2">
+                        <i class="fas fa-download me-2"></i>Download Report
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<style>
+.report-card {
+    transition: all 0.3s ease;
+    border: 1px solid #e9ecef;
+}
+.report-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+.text-purple {
+    color: #6f42c1;
+}
+</style>
+{% endblock %}

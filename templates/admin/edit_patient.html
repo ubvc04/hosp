@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Patient - Hospital Portal{% endblock %}
+
+{% block navbar %}
+{% include "admin/_navbar.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-content">
+    <div class="d-flex align-items-center mb-4">
+        <a href="{{ url_for('admin.view_patient', patient_id=patient.patient_id) }}" class="btn btn-outline-secondary me-3">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <div>
+            <h1 class="page-title mb-0">
+                <i class="fas fa-user-edit me-2"></i>Edit Patient
+            </h1>
+            <p class="text-muted mb-0">Patient ID: {{ patient.patient_id }}</p>
+        </div>
+    </div>
+    
+    <form method="POST" action="{{ url_for('admin.edit_patient', patient_id=patient.patient_id) }}" class="needs-validation" novalidate data-loading>
+        {{ form.hidden_tag() }}
+        
+        <div class="row g-4">
+            <!-- Basic Information -->
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-user me-2"></i>Basic Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                            {{ form.name(class="form-control", placeholder="Enter patient's full name") }}
+                            {% if form.name.errors %}
+                                <div class="invalid-feedback d-block">{{ form.name.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Age <span class="text-danger">*</span></label>
+                                {{ form.age(class="form-control", placeholder="Age") }}
+                                {% if form.age.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.age.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Gender <span class="text-danger">*</span></label>
+                                {{ form.gender(class="form-select") }}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Contact Number <span class="text-danger">*</span></label>
+                            {{ form.contact(class="form-control") }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            {{ form.email(class="form-control") }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Address</label>
+                            {{ form.address(class="form-control", rows="2") }}
+                            <small class="form-text text-muted">
+                                <i class="fas fa-lock me-1"></i>This field is encrypted
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Patient Category -->
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-hospital me-2"></i>Patient Category</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Category <span class="text-danger">*</span></label>
+                            {{ form.category(class="form-select", id="category") }}
+                        </div>
+                        
+                        <div id="in-patient-fields" style="display: {{ 'block' if patient.category == 'IN_PATIENT' else 'none' }};">
+                            <div class="mb-3">
+                                <label class="form-label">Room Number</label>
+                                {{ form.room_number(class="form-control") }}
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Admission Date</label>
+                                {{ form.admission_date(class="form-control", type="date") }}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Account Status</label>
+                            {{ form.status(class="form-select") }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-key me-2"></i>Update Password</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">New Password</label>
+                            {{ form.initial_password(class="form-control", placeholder="Leave blank to keep current password") }}
+                            <small class="form-text text-muted">
+                                Only fill if you want to change the password
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Medical Information -->
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-notes-medical me-2"></i>Medical Information
+                            <span class="badge bg-success ms-2"><i class="fas fa-lock me-1"></i>Encrypted</span>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Medical History</label>
+                                {{ form.medical_history(class="form-control", rows="4") }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Current Diagnosis</label>
+                                {{ form.diagnosis(class="form-control", rows="4") }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Current Prescriptions</label>
+                                {{ form.prescriptions(class="form-control", rows="4") }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Other Medical Details</label>
+                                {{ form.other_details(class="form-control", rows="4") }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-4 d-flex gap-2">
+            <button type="submit" class="btn btn-primary btn-lg">
+                <i class="fas fa-save me-2"></i>Save Changes
+            </button>
+            <a href="{{ url_for('admin.view_patient', patient_id=patient.patient_id) }}" class="btn btn-outline-secondary btn-lg">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

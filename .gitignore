@@ -1,0 +1,68 @@
+# Environment
+.env
+*.env
+.env.local
+.env.production
+
+# Keys - CRITICAL: Never commit private keys
+keys/
+*.pem
+*.key
+*.crt
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+.eggs/
+*.egg-info/
+dist/
+build/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+instance/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Uploads
+uploads/*
+!uploads/.gitkeep
+
+# Logs
+*.log
+logs/
+
+# Blockchain (if added later)
+blockchain/data/
+*.chain
+node_modules/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# pytest
+.pytest_cache/
+.coverage
+htmlcov/

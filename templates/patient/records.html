@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}My Medical Records - Hospital Portal{% endblock %}
+
+{% block navbar %}
+{% include "patient/_navbar.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="page-title">
+            <i class="fas fa-file-medical me-2"></i>My Medical Records
+        </h1>
+    </div>
+    
+    <!-- Patient Summary -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h5 class="mb-2">
+                        <i class="fas fa-user-circle me-2 text-success"></i>
+                        {{ current_user.first_name }} {{ current_user.last_name }}
+                    </h5>
+                    <div class="row text-muted">
+                        <div class="col-auto">
+                            <i class="fas fa-id-card me-1"></i>Patient ID: {{ patient.id }}
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-tint me-1"></i>Blood: <span class="badge bg-danger">{{ patient.blood_group or 'N/A' }}</span>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-birthday-cake me-1"></i>
+                            {% if patient.date_of_birth %}
+                            {{ patient.date_of_birth.strftime('%b %d, %Y') }}
+                            {% else %}
+                            N/A
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <span class="badge bg-info fs-6">
+                        <i class="fas fa-calendar-check me-1"></i>
+                        {{ visits|length }} Total Visits
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Medical History -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-notes-medical me-2"></i>Medical History
+                        <span class="badge bg-success ms-2"><i class="fas fa-lock me-1"></i>Encrypted</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="bg-light p-3 rounded">
+                        {{ medical_history or 'No medical history on record.' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-allergies me-2"></i>Allergies & Emergency Contact
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="text-muted small">Known Allergies</label>
+                        <p class="mb-0 fw-medium">{{ patient.allergies or 'None reported' }}</p>
+                    </div>
+                    <hr>
+                    <div>
+                        <label class="text-muted small">Emergency Contact</label>
+                        <p class="mb-0 fw-medium">{{ patient.emergency_contact or 'Not provided' }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Visit History -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-history me-2"></i>Visit History</h5>
+        </div>
+        <div class="card-body">
+            {% if visits %}
+            <div class="accordion" id="visitsAccordion">
+                {% for visit in visits %}
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button {% if not loop.first %}collapsed{% endif %}" type="button" 
+                                data-bs-toggle="collapse" data-bs-target="#visit{{ visit.id }}">
+                            <div class="d-flex justify-content-between w-100 me-3">
+                                <div>
+                                    <i class="fas fa-calendar-day me-2 text-success"></i>
+                                    <strong>{{ visit.visit_date.strftime('%B %d, %Y') if visit.visit_date else 'N/A' }}</strong>
+                                    <span class="text-muted ms-3">
+                                        <i class="fas fa-user-md me-1"></i>{{ visit.doctor_name }}
+                                    </span>
+                                </div>
+                                <span class="badge bg-primary">{{ visit.department }}</span>
+                            </div>
+                        </button>
+                    </h2>
+                    <div id="visit{{ visit.id }}" class="accordion-collapse collapse {% if loop.first %}show{% endif %}" 
+                         data-bs-parent="#visitsAccordion">
+                        <div class="accordion-body">
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="bg-light p-3 rounded">
+                                        <h6 class="text-muted mb-2">
+                                            <i class="fas fa-stethoscope me-1"></i>Diagnosis
+                                            <span class="badge bg-success ms-2"><i class="fas fa-lock me-1"></i></span>
+                                        </h6>
+                                        <p class="mb-0">{{ visit.decrypted_diagnosis or 'No diagnosis recorded' }}</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="bg-light p-3 rounded">
+                                        <h6 class="text-muted mb-2">
+                                            <i class="fas fa-prescription me-1"></i>Prescriptions
+                                            <span class="badge bg-success ms-2"><i class="fas fa-lock me-1"></i></span>
+                                        </h6>
+                                        <pre class="mb-0" style="white-space: pre-wrap; font-family: inherit;">{{ visit.decrypted_prescriptions or 'No prescriptions' }}</pre>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="bg-light p-3 rounded">
+                                        <h6 class="text-muted mb-2">
+                                            <i class="fas fa-clipboard me-1"></i>Notes
+                                        </h6>
+                                        <p class="mb-0">{{ visit.notes or 'No additional notes' }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-calendar-times text-muted" style="font-size: 4rem;"></i>
+                <h4 class="mt-3 text-muted">No Visit Records</h4>
+                <p class="text-muted">Your visit history will appear here once recorded.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

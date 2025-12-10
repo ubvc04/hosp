@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Server Error - Hospital Portal{% endblock %}
+
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+            <i class="fas fa-hospital me-2"></i>Hospital Portal
+        </a>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center align-items-center" style="min-height: 70vh;">
+        <div class="col-md-6 text-center">
+            <div class="error-page">
+                <h1 class="error-code">500</h1>
+                <i class="fas fa-exclamation-triangle error-icon text-danger mb-4"></i>
+                <h2 class="mb-3">Server Error</h2>
+                <p class="text-muted mb-4">
+                    Something went wrong on our end. Our team has been notified and is working to fix the issue.
+                </p>
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="/" class="btn btn-primary">
+                        <i class="fas fa-home me-2"></i>Go Home
+                    </a>
+                    <button onclick="location.reload()" class="btn btn-outline-secondary">
+                        <i class="fas fa-redo me-2"></i>Try Again
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.error-code {
+    font-size: 8rem;
+    font-weight: 700;
+    color: #dc3545;
+    line-height: 1;
+    margin-bottom: 1rem;
+}
+.error-icon {
+    font-size: 4rem;
+    display: block;
+}
+</style>
+{% endblock %}

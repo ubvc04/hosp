@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - Hospital Portal{% endblock %}
+
+{% block navbar %}
+{% if current_user.is_admin() %}
+    {% include "admin/_navbar.html" %}
+{% else %}
+    {% include "patient/_navbar.html" %}
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>My Profile</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <div class="profile-avatar mx-auto mb-3" style="width: 100px; height: 100px; background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-user fa-3x text-white"></i>
+                        </div>
+                        <h4>{{ current_user.first_name }} {{ current_user.last_name }}</h4>
+                        <span class="badge bg-{{ 'danger' if current_user.is_admin() else 'success' }} fs-6">
+                            {{ 'Administrator' if current_user.is_admin() else 'Patient' }}
+                        </span>
+                    </div>
+                    
+                    <hr>
+                    
+                    <table class="table table-borderless">
+                        <tr>
+                            <th width="200"><i class="fas fa-envelope me-2 text-muted"></i>Email</th>
+                            <td>{{ current_user.email }}</td>
+                        </tr>
+                        <tr>
+                            <th><i class="fas fa-phone me-2 text-muted"></i>Phone</th>
+                            <td>{{ current_user.phone or 'Not provided' }}</td>
+                        </tr>
+                        <tr>
+                            <th><i class="fas fa-calendar me-2 text-muted"></i>Registered</th>
+                            <td>{{ current_user.created_at.strftime('%B %d, %Y') if current_user.created_at else 'N/A' }}</td>
+                        </tr>
+                        <tr>
+                            <th><i class="fas fa-clock me-2 text-muted"></i>Last Login</th>
+                            <td>{{ current_user.last_login.strftime('%B %d, %Y %I:%M %p') if current_user.last_login else 'N/A' }}</td>
+                        </tr>
+                    </table>
+                    
+                    <div class="mt-4 text-center">
+                        <a href="{{ url_for('auth.change_password') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-key me-2"></i>Change Password
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

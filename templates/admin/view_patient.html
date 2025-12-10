@@ -1,0 +1,374 @@
+{% extends "base.html" %}
+
+{% block title %}{{ patient.user.first_name }} {{ patient.user.last_name }} - Hospital Portal{% endblock %}
+
+{% block navbar %}
+{% include "admin/_navbar.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-content">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center">
+            <a href="{{ url_for('admin.patients_list') }}" class="btn btn-outline-secondary me-3">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <div>
+                <h1 class="page-title mb-0">{{ patient.user.first_name }} {{ patient.user.last_name }}</h1>
+                <p class="text-muted mb-0">
+                    Patient ID: <strong>#{{ patient.id }}</strong>
+                </p>
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('admin.edit_patient', patient_id=patient.id) }}" class="btn btn-primary">
+                <i class="fas fa-edit me-2"></i>Edit Patient
+            </a>
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                        <a class="dropdown-item" href="{{ url_for('admin.add_visit', patient_id=patient.id) }}">
+                            <i class="fas fa-calendar-plus me-2"></i>Add Visit
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="{{ url_for('admin.add_bill', patient_id=patient.id) }}">
+                            <i class="fas fa-file-invoice-dollar me-2"></i>Create Bill
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="{{ url_for('admin.add_report', patient_id=patient.id) }}">
+                            <i class="fas fa-x-ray me-2"></i>Add Report
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <form method="POST" action="{{ url_for('admin.delete_patient', patient_id=patient.id) }}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this patient?')">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="dropdown-item text-danger">
+                                <i class="fas fa-trash me-2"></i>Delete Patient
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Patient Overview Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        {% if patient.blood_group %}
+                        <span class="badge bg-danger fs-5">{{ patient.blood_group }}</span>
+                        {% else %}
+                        <span class="badge bg-secondary fs-6">N/A</span>
+                        {% endif %}
+                    </div>
+                    <h6 class="text-muted">Blood Group</h6>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <h3 class="mb-2">{{ patient.gender or 'N/A' }}</h3>
+                    <h6 class="text-muted">Gender</h6>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <h3 class="mb-2">{{ visits|length }}</h3>
+                    <h6 class="text-muted">Total Visits</h6>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <h3 class="mb-2">{{ bills|length }}</h3>
+                    <h6 class="text-muted">Total Bills</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="row g-4">
+        <!-- Left Column - Patient Details -->
+        <div class="col-lg-4">
+            <!-- Contact Info -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-address-card me-2"></i>Contact Information</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2">
+                        <i class="fas fa-envelope me-2 text-muted"></i>{{ patient.user.email }}
+                    </p>
+                    <p class="mb-2">
+                        <i class="fas fa-phone me-2 text-muted"></i>{{ patient.user.phone or 'Not provided' }}
+                    </p>
+                    <p class="mb-0">
+                        <i class="fas fa-birthday-cake me-2 text-muted"></i>
+                        {% if patient.date_of_birth %}
+                        {{ patient.date_of_birth.strftime('%B %d, %Y') }}
+                        {% else %}
+                        Not provided
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Emergency & Allergies -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Emergency Info</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2">
+                        <strong>Emergency Contact:</strong><br>
+                        {{ patient.emergency_contact or 'Not provided' }}
+                    </p>
+                    <p class="mb-0">
+                        <strong>Allergies:</strong><br>
+                        <span class="text-danger">{{ patient.allergies or 'None reported' }}</span>
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Medical Summary -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-notes-medical me-2"></i>Medical History
+                        <span class="badge bg-success ms-2"><i class="fas fa-lock me-1"></i>Encrypted</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="bg-light p-3 rounded">
+                        {{ medical_history or 'No medical history recorded' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Column - Visits, Bills, Reports -->
+        <div class="col-lg-8">
+            <!-- Tabs -->
+            <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#visits">
+                        <i class="fas fa-calendar-check me-1"></i> Visits ({{ visits|length }})
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#bills">
+                        <i class="fas fa-file-invoice-dollar me-1"></i> Bills ({{ bills|length }})
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#reports">
+                        <i class="fas fa-x-ray me-1"></i> Reports ({{ reports|length }})
+                    </button>
+                </li>
+            </ul>
+            
+            <div class="tab-content">
+                <!-- Visits Tab -->
+                <div class="tab-pane fade show active" id="visits">
+                    <div class="card border-top-0 rounded-top-0">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-end mb-3">
+                                <a href="{{ url_for('admin.add_visit', patient_id=patient.id) }}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-plus me-1"></i> Add Visit
+                                </a>
+                            </div>
+                            
+                            {% if visits %}
+                                {% for visit in visits %}
+                                <div class="card mb-3 border-start border-primary border-4">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <h6 class="mb-1">
+                                                    <span class="badge bg-info">{{ visit.department }}</span>
+                                                    <span class="ms-2"><i class="fas fa-user-md me-1"></i>{{ visit.doctor_name }}</span>
+                                                </h6>
+                                                <small class="text-muted">
+                                                    <i class="fas fa-calendar me-1"></i>
+                                                    {{ visit.visit_date.strftime('%B %d, %Y') if visit.visit_date else 'N/A' }}
+                                                </small>
+                                            </div>
+                                        </div>
+                                        
+                                        {% if visit.diagnosis %}
+                                        <div class="mt-2">
+                                            <strong>Diagnosis:</strong> <span class="badge bg-success"><i class="fas fa-lock me-1"></i></span>
+                                            <p class="small mb-0">{{ visit.diagnosis }}</p>
+                                        </div>
+                                        {% endif %}
+                                        
+                                        {% if visit.prescriptions %}
+                                        <div class="mt-2">
+                                            <strong>Prescriptions:</strong> <span class="badge bg-success"><i class="fas fa-lock me-1"></i></span>
+                                            <pre class="small mb-0" style="white-space: pre-wrap; font-family: inherit;">{{ visit.prescriptions }}</pre>
+                                        </div>
+                                        {% endif %}
+                                        
+                                        {% if visit.notes %}
+                                        <div class="mt-2">
+                                            <strong>Notes:</strong>
+                                            <p class="small mb-0">{{ visit.notes }}</p>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="text-center py-5">
+                                    <i class="fas fa-calendar fa-3x text-muted mb-3"></i>
+                                    <h5 class="text-muted">No Visits Recorded</h5>
+                                    <p class="text-muted">Add the first visit for this patient.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Bills Tab -->
+                <div class="tab-pane fade" id="bills">
+                    <div class="card border-top-0 rounded-top-0">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-end mb-3">
+                                <a href="{{ url_for('admin.add_bill', patient_id=patient.id) }}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-plus me-1"></i> Create Bill
+                                </a>
+                            </div>
+                            
+                            {% if bills %}
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Bill #</th>
+                                                <th>Description</th>
+                                                <th>Amount</th>
+                                                <th>Status</th>
+                                                <th>Due Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for bill in bills %}
+                                            <tr>
+                                                <td>#{{ bill.id }}</td>
+                                                <td>{{ bill.description[:30] }}...</td>
+                                                <td>${{ "%.2f"|format(bill.amount) }}</td>
+                                                <td>
+                                                    {% if bill.status == 'unpaid' %}
+                                                    <span class="badge bg-danger">Unpaid</span>
+                                                    {% elif bill.status == 'paid' %}
+                                                    <span class="badge bg-success">Paid</span>
+                                                    {% else %}
+                                                    <span class="badge bg-warning">{{ bill.status|title }}</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>{{ bill.due_date.strftime('%b %d, %Y') if bill.due_date else 'N/A' }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="text-center py-5">
+                                    <i class="fas fa-file-invoice-dollar fa-3x text-muted mb-3"></i>
+                                    <h5 class="text-muted">No Bills Created</h5>
+                                    <p class="text-muted">Create the first bill for this patient.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Reports Tab -->
+                <div class="tab-pane fade" id="reports">
+                    <div class="card border-top-0 rounded-top-0">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-end mb-3">
+                                <a href="{{ url_for('admin.add_report', patient_id=patient.id) }}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-plus me-1"></i> Add Report
+                                </a>
+                            </div>
+                            
+                            {% if reports %}
+                                <div class="row g-3">
+                                    {% for report in reports %}
+                                    <div class="col-md-6">
+                                        <div class="card h-100">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <span class="badge bg-info">
+                                                        {% if report.report_type == 'blood-test' %}
+                                                        <i class="fas fa-vial me-1"></i>
+                                                        {% elif report.report_type == 'x-ray' %}
+                                                        <i class="fas fa-x-ray me-1"></i>
+                                                        {% elif report.report_type == 'mri' %}
+                                                        <i class="fas fa-brain me-1"></i>
+                                                        {% else %}
+                                                        <i class="fas fa-file-medical me-1"></i>
+                                                        {% endif %}
+                                                        {{ report.report_type|replace('-', ' ')|title }}
+                                                    </span>
+                                                    {% if report.status == 'completed' %}
+                                                    <span class="badge bg-success">Completed</span>
+                                                    {% elif report.status == 'pending' %}
+                                                    <span class="badge bg-warning">Pending</span>
+                                                    {% else %}
+                                                    <span class="badge bg-info">{{ report.status|title }}</span>
+                                                    {% endif %}
+                                                </div>
+                                                <p class="small text-muted mb-1">
+                                                    <i class="fas fa-calendar me-1"></i>
+                                                    {{ report.report_date.strftime('%B %d, %Y') if report.report_date else 'N/A' }}
+                                                </p>
+                                                {% if report.ordered_by %}
+                                                <p class="small text-muted mb-2">
+                                                    <i class="fas fa-user-md me-1"></i>{{ report.ordered_by }}
+                                                </p>
+                                                {% endif %}
+                                                {% if report.summary %}
+                                                <p class="small mb-0"><strong>Summary:</strong> {{ report.summary[:100] }}...</p>
+                                                {% endif %}
+                                                <div class="mt-2">
+                                                    <a href="{{ url_for('admin.view_report', report_id=report.id) }}" class="btn btn-sm btn-outline-primary">
+                                                        <i class="fas fa-eye me-1"></i>View
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="text-center py-5">
+                                    <i class="fas fa-x-ray fa-3x text-muted mb-3"></i>
+                                    <h5 class="text-muted">No Reports Available</h5>
+                                    <p class="text-muted">Add the first report for this patient.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
