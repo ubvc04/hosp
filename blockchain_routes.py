@@ -86,23 +86,15 @@ def dashboard():
                 for acc in accounts[:5]
             ]
             
-            if bc.contract:
-                context['contract_owner'] = bc.get_contract_owner()
-                
-                # Get audit logs
-                try:
-                    context['audit_logs'] = bc.get_audit_logs()[:20]  # Last 20 logs
-                    context['stats']['total_audits'] = len(bc.get_audit_logs())
-                except:
-                    pass
-                
-                # Count patients with blockchain records
-                patients = Patient.query.all()
-                for patient in patients:
-                    count = bc.get_record_count(patient.id)
-                    if count > 0:
-                        context['stats']['total_patients'] += 1
-                        context['stats']['total_records'] += count
+            context['contract_owner'] = bc.get_contract_owner()
+            
+            # Get stats from blockchain manager
+            context['stats']['total_records'] = bc.get_total_records()
+            context['stats']['total_patients'] = bc.get_total_patients()
+            context['stats']['total_audits'] = len(bc.get_audit_logs())
+            
+            # Get audit logs
+            context['audit_logs'] = bc.get_audit_logs()[-20:]  # Last 20 logs
                         
         except Exception as e:
             context['error'] = str(e)
@@ -120,7 +112,7 @@ def store_record():
     if not bc.is_connected():
         return jsonify({'error': 'Blockchain not connected'}), 503
     
-    if not bc.contract:
+    if not bc.is_connected():
         return jsonify({'error': 'Contract not deployed'}), 503
     
     data = request.get_json()
@@ -143,7 +135,7 @@ def verify_record():
     """Verify a record against blockchain."""
     bc = get_blockchain()
     
-    if not bc.is_connected() or not bc.contract:
+    if not bc.is_connected():
         return jsonify({'error': 'Blockchain not available'}), 503
     
     data = request.get_json()
@@ -176,7 +168,7 @@ def get_patient_records(patient_id):
         if not patient or patient.id != patient_id:
             return jsonify({'error': 'Not authorized'}), 403
     
-    if not bc.is_connected() or not bc.contract:
+    if not bc.is_connected():
         return jsonify({'error': 'Blockchain not available', 'records': []}), 200
     
     records = bc.get_patient_records(patient_id)
@@ -195,7 +187,7 @@ def get_patient_audit_logs(patient_id):
     """Get audit logs for a specific patient."""
     bc = get_blockchain()
     
-    if not bc.is_connected() or not bc.contract:
+    if not bc.is_connected():
         return jsonify({'error': 'Blockchain not available'}), 503
     
     logs = bc.get_audit_logs(patient_id=patient_id)
@@ -214,7 +206,7 @@ def sync_patient_to_blockchain(patient_id):
     """Sync all patient records to blockchain."""
     bc = get_blockchain()
     
-    if not bc.is_connected() or not bc.contract:
+    if not bc.is_connected():
         return jsonify({'error': 'Blockchain not available'}), 503
     
     patient = Patient.query.get_or_404(patient_id)
@@ -291,8 +283,8 @@ def sync_all_to_blockchain():
     """Sync all patients to blockchain."""
     bc = get_blockchain()
     
-    if not bc.is_connected() or not bc.contract:
-        return jsonify({'error': 'Blockchain not available'}), 503
+    if not bc.is_connected():
+        return jsonify({'error': 'Blockchain not connected'}), 503
     
     patients = Patient.query.all()
     total_synced = 0
@@ -300,7 +292,7 @@ def sync_all_to_blockchain():
     
     for patient in patients:
         try:
-            # Just store patient info for bulk sync
+            # Store patient info
             patient_data = {
                 'id': patient.id,
                 'user_id': patient.user_id,
@@ -316,7 +308,9 @@ def sync_all_to_blockchain():
             
             patient_results.append({
                 'patient_id': patient.id,
-                'success': result.get('success', False)
+                'success': result.get('success', False),
+                'tx_hash': result.get('transaction_hash', ''),
+                'error': result.get('error', '')
             })
         except Exception as e:
             patient_results.append({
@@ -339,7 +333,7 @@ def check_integrity(patient_id):
     """Check data integrity for a patient."""
     bc = get_blockchain()
     
-    if not bc.is_connected() or not bc.contract:
+    if not bc.is_connected():
         return jsonify({'error': 'Blockchain not available'}), 503
     
     patient = Patient.query.get_or_404(patient_id)
